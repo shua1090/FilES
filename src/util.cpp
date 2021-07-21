@@ -5,6 +5,7 @@
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
 #include <iostream>
+#include <utility>
 
 void crypto::hash(byte *input, unsigned long sizeOfInput, byte *result) {
     CryptoPP::SHA3_256 sha;
@@ -17,6 +18,13 @@ void crypto::hash(std::string str, byte* result){
         strToArr[i] = str[i];
     }
     hash(strToArr, sizeof strToArr, result);
+}
+
+// Don't Forget to Delete!
+byte* crypto::hash(std::string str){
+    byte * result = new byte[32];
+    hash(std::move(str), result);
+    return result;
 }
 
 std::string crypto::toHex(byte * input, int size) {
@@ -37,3 +45,5 @@ std::string crypto::toHex(byte * input, int size) {
 std::string crypto::toHex(std::vector<byte> vec) {
     return toHex(&vec[0], vec.size());
 }
+
+

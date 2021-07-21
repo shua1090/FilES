@@ -11,7 +11,7 @@ include_directories(backends)
 
 find_package(wxWidgets REQUIRED COMPONENTS net core base)
 include(${wxWidgets_USE_FILE})
-add_executable(FilES src/crypto.hpp src/util.cpp src/main.cpp src/AES.cpp src/FileWorker.cpp)
+add_executable(FilES src/crypto.hpp src/util.cpp src/main.cpp src/AES.cpp src/FileUtils.cpp)
 
 target_link_libraries(FilES ${CONAN_LIBS})
 target_link_libraries(FilES ${wxWidgets_LIBRARIES})

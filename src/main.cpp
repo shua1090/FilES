@@ -9,71 +9,31 @@
 #include <iostream>
 #include <cryptopp/modes.h>
 #include <vector>
-//int main(){
-//    using namespace CryptoPP;
-//    using namespace crypto;
-//    CryptoPP::SecByteBlock a = crypto::AES::getSecureIV();
-//    byte result[32];
-//    hash("password", result);
-//
-//    CryptoPP::SecByteBlock kye(result, sizeof(result));
-//    crypto::AES ase(kye, a);
-//    std::vector<byte> plain;
-//
-//    byte data[] = "Hello Adi. I am Computer. I will be your downfall. Enjoy life while you can!";
-//
-//    plain.insert( plain.end(), std::begin(data), std::end(data) );
-//
-//    std::cout << "Original Data: " << plain.data() << std::endl;
-//
-//    auto start = std::chrono::high_resolution_clock::now();
-//    std::vector<byte> ciphertext = ase.encrypt(plain);
-//    auto stop = std::chrono::high_resolution_clock::now();
-//    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-//
-//    std::cout << "Encryption time: " << duration.count() << " ms" << std::endl;
-//    std::cout << "Encrypted Data (128 bits): " << ciphertext.data() << std::endl;
-//
-//    start = std::chrono::high_resolution_clock::now();
-//    std::vector<byte> recovery = ase.decrypt(ciphertext);
-//    stop = std::chrono::high_resolution_clock::now();
-//    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-//
-//    std::cout << "Decryption time: " << duration.count() << " ms" << std::endl;
-//    std::cout << "Decrypted Data: " << recovery.data() << std::endl;
-//}
 
 int main(){
-    crypto::FileWorker plainText;
-    crypto::FileWorker cipherText;
-    plainText.setReading("test.txt");
-    cipherText.setWriting("cipher.txt");
+    using namespace crypto::io;
 
-    byte hashResult[32];
-    crypto::hash("Password", hashResult);
+//    auto iv = crypto::AES::getSecureIV();
+//    auto key = CryptoPP::SecByteBlock (crypto::hash("Password"), 32);
+//    KeyWorker::writeKeyWithIV("KeyData.key", key, iv);
+    auto loadIV = KeyWorker::readIV("KeyData.key");
+    auto loadKey = KeyWorker::readKey("KeyData.key");
 
-    CryptoPP::SecByteBlock key(hashResult, sizeof hashResult);
-    CryptoPP::SecByteBlock iv = crypto::AES::getSecureIV();
 
-    crypto::AES ase(key, iv);
-    while (true){
-        std::vector<byte> plainTextBytes = plainText.readNextByte();
-        if (plainTextBytes.empty()) break;
-        auto temp = ase.encrypt(plainTextBytes);
-        cipherText.write(temp);
-        std::cout<< "Temp size: " << temp.size() << std::endl;
+
+    FileWorker plaintext("plain.txt");
+    std::remove("recovered.txt");
+    FileWorker recovered("recovered.txt");
+    FileWorker ciphertext("encrypted.enc");
+
+    crypto::AES dase(loadKey, loadIV);
+
+    std::vector<byte> chunk;
+    while (true) {
+        chunk = ciphertext.read(128);
+        if (chunk.empty()) break;
+        recovered.writeData(crypto::unpad(dase.decrypt(chunk)));
     }
-    plainText.~FileWorker();
-    cipherText.~FileWorker();
 
-    crypto::FileWorker newCipherText;
-    newCipherText.setReading("cipher.txt");
 
-    while (true){
-        std::vector<byte> plainBytesDaya = newCipherText.readNextByte();
-        if (plainBytesDaya.empty() || plainBytesDaya.capacity() == 0) break;
-        std::cout << "Before: " <<  crypto::toHex(plainBytesDaya) <<std::endl;
-//        std::cout << ase.decrypt(plainBytesDaya).data() << std::endl;
-        std::cout << ase.decrypt(plainBytesDaya).data() << std::endl;
-    }
 }

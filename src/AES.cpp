@@ -11,7 +11,7 @@ namespace crypto{
     }
 
     CryptoPP::SecByteBlock AES::getSecureIV() {
-        CryptoPP::SecByteBlock newIV(128);
+        CryptoPP::SecByteBlock newIV(16);
         CryptoPP::AutoSeededRandomPool prng;
         prng.GenerateBlock(newIV, newIV.size());
         return newIV;
@@ -25,7 +25,7 @@ namespace crypto{
 
         CryptoPP::ArraySource(plain.data(), plain.size(), true,
                     new CryptoPP::StreamTransformationFilter(encMachine, new CryptoPP::Redirector(cs),
-                                                             CryptoPP::BlockPaddingSchemeDef::DEFAULT_PADDING));
+                                                             CryptoPP::BlockPaddingSchemeDef::NO_PADDING));
 
         cipher.resize(cs.TotalPutLength());
         return cipher;
@@ -37,13 +37,13 @@ namespace crypto{
         recover.resize(ciphertext.size());
         CryptoPP::ArraySink rs(&recover[0], recover.size());
 
-        CryptoPP::ArraySource(ciphertext.data(), ciphertext.size(), true,
+        CryptoPP::ArraySource a(ciphertext.data(), ciphertext.size(), true,
                     new CryptoPP::StreamTransformationFilter(decMachine, new CryptoPP::Redirector(rs),
-                                                             CryptoPP::BlockPaddingSchemeDef::DEFAULT_PADDING));
+                                                             CryptoPP::BlockPaddingSchemeDef::NO_PADDING));
 
         // Set recovered text length now that its known
+//        decMachine.Resynchronize()
         recover.resize(rs.TotalPutLength());
-
         return recover;
     }
 
