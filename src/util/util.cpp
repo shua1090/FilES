@@ -1,4 +1,4 @@
-#include "crypto.hpp"
+#include "../crypto.hpp"
 
 #include <cryptopp/sha3.h>
 #include <cryptopp/hex.h>

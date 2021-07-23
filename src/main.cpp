@@ -10,30 +10,21 @@
 #include <cryptopp/modes.h>
 #include <vector>
 
+#include<SFML/Window.hpp>
+#include<SFML/Window/Mouse.hpp>
+
 int main(){
     using namespace crypto::io;
 
-//    auto iv = crypto::AES::getSecureIV();
-//    auto key = CryptoPP::SecByteBlock (crypto::hash("Password"), 32);
-//    KeyWorker::writeKeyWithIV("KeyData.key", key, iv);
-    auto loadIV = KeyWorker::readIV("KeyData.key");
-    auto loadKey = KeyWorker::readKey("KeyData.key");
+    auto start = std::chrono::high_resolution_clock::now();
 
+    auto keyworker = crypto::AESWorker::loadKeyFile("KeyData.key");
 
+    keyworker.encryptToFile("plain1.png", "encrypted.png");
+    keyworker.decryptToFile("encrypted.png", "recovered.png");
 
-    FileWorker plaintext("plain.txt");
-    std::remove("recovered.txt");
-    FileWorker recovered("recovered.txt");
-    FileWorker ciphertext("encrypted.enc");
+    auto stop = std::chrono::high_resolution_clock::now();
 
-    crypto::AES dase(loadKey, loadIV);
-
-    std::vector<byte> chunk;
-    while (true) {
-        chunk = ciphertext.read(128);
-        if (chunk.empty()) break;
-        recovered.writeData(crypto::unpad(dase.decrypt(chunk)));
-    }
-
-
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << duration.count() << " microseconds" << std::endl;
 }

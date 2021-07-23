@@ -1,7 +1,7 @@
 #include <utility>
 
 #include<cstdio>
-#include "crypto.hpp"
+#include "../crypto.hpp"
 
 namespace crypto::io {
     /// File Writer Definitions:
@@ -25,6 +25,14 @@ namespace crypto::io {
         if (inStream.tellg() == -1 || inStream.tellg() == length) return std::vector<byte>(0);
         std::vector<byte> dat(n);
         inStream.read(reinterpret_cast<char *>(&dat[0]), (long) dat.size());
+        unsigned long size;
+        if (inStream.tellg() == -1 || inStream.tellg() == length){
+            size = length % n;
+        } else size = n;
+//        std::cout << "Size: " << size << "-" << n << std::endl;
+//        std::cout << "A: " << a << " - B: " << b << std::endl;
+//        std::cout << "Predict A" << a + 128 << std::endl;
+        dat.resize(size);
         return dat;
     }
 
@@ -61,14 +69,16 @@ namespace crypto::io {
     }
 
     /// FileWorker
-    std::vector<byte> FileWorker::read(int n, bool doPad) {
-        if (doPad){
-            if (FileReader::length - FileReader::inStream.tellg() <= 128){
-                auto res = FileReader::readNextNBytes(n);
-                if (res.empty()) return res;
-                return crypto::pad(res,  (FileReader::length % 128));
-            }
-        }
+    std::vector<byte> FileWorker::read(int recommendedSize) {
+        int n;
+        if (recommendedSize > 0) n = recommendedSize;
+        else if (FileReader::length > 64000000) n = 64000000;
+        else if (FileReader::length > 32000000) n = 32000000;
+        else if (FileReader::length > 16000000) n = 16000000;
+        else if (FileReader::length > 4000000) n = 4000000;
+        else if (FileReader::length > 2000000) n = 2000000;
+        else if (FileReader::length > 1000) n = 1000;
+        else n = 128;
         return FileReader::readNextNBytes(n);
     }
 }

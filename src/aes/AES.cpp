@@ -1,4 +1,4 @@
-#include "crypto.hpp"
+#include "../crypto.hpp"
 
 #include <cryptopp/osrng.h>
 namespace crypto{
