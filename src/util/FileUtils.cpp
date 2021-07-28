@@ -26,43 +26,41 @@ namespace crypto::io {
         std::vector<byte> dat(n);
         inStream.read(reinterpret_cast<char *>(&dat[0]), (long) dat.size());
         unsigned long size;
-        if (inStream.tellg() == -1 || inStream.tellg() == length){
+        if (inStream.tellg() == -1){
             size = length % n;
         } else size = n;
-//        std::cout << "Size: " << size << "-" << n << std::endl;
-//        std::cout << "A: " << a << " - B: " << b << std::endl;
-//        std::cout << "Predict A" << a + 128 << std::endl;
+
         dat.resize(size);
         return dat;
     }
 
     /// KeyReader/Writer
-    CryptoPP::SecByteBlock KeyWorker::readKey(const std::string& fileName) {
+    CryptoPP::SecByteBlock AES_Key_Worker::readKey(const std::string& fileName) {
         FileReader fr(fileName);
         auto temp = fr.readNextNBytes(32);
         CryptoPP::SecByteBlock key(&temp[0], 32);;
         return key;
     }
-    CryptoPP::SecByteBlock KeyWorker::readIV(const std::string& fileName) {
+    CryptoPP::SecByteBlock AES_Key_Worker::readIV(const std::string& fileName) {
         FileReader fr(fileName);
         fr.inStream.seekg(32);
         CryptoPP::SecByteBlock iv(&fr.readNextNBytes(16)[0], 16);
         return iv;
     }
-    void KeyWorker::writeKey(const std::string& fileName, CryptoPP::SecByteBlock key) {
+    void AES_Key_Worker::writeKey(const std::string& fileName, CryptoPP::SecByteBlock key) {
         FileWriter fw(fileName);
         std::vector <byte> keyVec;
         keyVec.insert(keyVec.end(), std::begin(key), std::end(key));
         fw.write(keyVec);
     }
-    void KeyWorker::writeIV(const std::string &fileName, CryptoPP::SecByteBlock iv) {
+    void AES_Key_Worker::writeIV(const std::string &fileName, CryptoPP::SecByteBlock iv) {
         FileWriter fw(fileName);
         fw.outStream.seekp(32);
         std::vector <byte> keyVec;
         keyVec.insert(keyVec.end(), std::begin(iv), std::end(iv));
         fw.write(keyVec);
     }
-    void KeyWorker::writeKeyWithIV(const std::string &fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv) {
+    void AES_Key_Worker::writeKeyWithIV(const std::string &fileName, const CryptoPP::SecByteBlock& key, const CryptoPP::SecByteBlock& iv) {
         std::remove(fileName.c_str());
         writeKey(fileName, key);
         writeIV(fileName, iv);

@@ -19,6 +19,13 @@ namespace crypto{
     std::string toHex(std::vector<byte> vec);
     byte *hash(std::string str);
 
+    enum DataSizes{
+        BYTE = 1,
+        KIBIBYTE = 1024,
+        MEBIBYTE = 1048576,
+        GIBIBYTE = 1073741824,
+    };
+
     namespace io{
         /// Backbones
         class FileIOManager{};
@@ -29,7 +36,7 @@ namespace crypto{
              ~FileWriter();
             void close(){this->~FileWriter();}
             void write(std::vector<byte> data);
-            friend class KeyWorker;
+            friend class AES_Key_Worker;
             friend class FileWorker;
         };
         class FileReader : FileIOManager {
@@ -40,12 +47,12 @@ namespace crypto{
              ~FileReader();
              void close(){this->~FileReader();}
             std::vector<byte> readNextNBytes(int n);
-             friend class KeyWorker;
+             friend class AES_Key_Worker;
              friend class FileWorker;
         };
 
         /// Implementations
-        class KeyWorker{
+        class AES_Key_Worker{
         public:
             static CryptoPP::SecByteBlock readKey(const std::string& fileName);
             static CryptoPP::SecByteBlock readIV(const std::string& fileName);
@@ -59,9 +66,9 @@ namespace crypto{
             explicit FileWorker(const std::string &path) : FileReader(path), FileWriter(path){};
             void writeData(std::vector<byte> data){ FileWriter::write(std::move(data));}
             std::vector<byte> read(int recommendedSize = -1);
+            unsigned long long getSize(){return FileReader::length;}
         };
     }
-
     class AES{
     private:
         CryptoPP::SecByteBlock key;
@@ -90,11 +97,24 @@ namespace crypto{
         overwrite = true);
     };
 
+
+
     /// One Time Pad?
     class OTP{
+    private:
+        std::string pathToKey;
+
+        static std::vector<byte> getRandomVectorMouse();
+    public:
         /// Uses Mouse movements for random number
-        std::vector<byte> getRandomVectorMouse(int byteSize);
-`
+
+        OTP(const std::string& keyPath) : pathToKey(keyPath){};
+        void deleteKey(){std::remove(pathToKey.c_str());};
+        void encrypt(const std::string& plainTextPath, const std::string& encryptedTextPath);
+        void decrypt(const std::string &encrypted_text_path, const std::string &recovered_text_path);
+
+        static std::string saveNewKey(unsigned long long int amountOfBytes, std::string filePath);
+
     };
 }
 

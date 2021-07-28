@@ -2,16 +2,16 @@
 
 namespace crypto{
     AESWorker AESWorker::loadKeyFile(const std::string& fileName) {
-        CryptoPP::SecByteBlock key = crypto::io::KeyWorker::readKey(fileName);
-        CryptoPP::SecByteBlock iv = crypto::io::KeyWorker::readIV(fileName);
+        CryptoPP::SecByteBlock key = crypto::io::AES_Key_Worker::readKey(fileName);
+        CryptoPP::SecByteBlock iv = crypto::io::AES_Key_Worker::readIV(fileName);
         return AESWorker(key, iv);
     }
 
     void AESWorker::saveKeyFile(const std::string& fileName, const CryptoPP::SecByteBlock& inputKey, const CryptoPP::SecByteBlock& inputIV,
                                 bool overwrite) {
         if (overwrite) std::remove(fileName.c_str());
-        io::KeyWorker::writeKey(fileName, inputKey);
-        io::KeyWorker::writeIV(fileName, inputIV);
+        io::AES_Key_Worker::writeKey(fileName, inputKey);
+        io::AES_Key_Worker::writeIV(fileName, inputIV);
     }
 
     void AESWorker::encryptToFile(const std::string& plainTextFileName, const std::string& ciphertextFileName, bool overwrite) {
