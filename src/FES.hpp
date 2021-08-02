@@ -1,5 +1,5 @@
-#ifndef FILES_CRYPTO_HPP
-#define FILES_CRYPTO_HPP
+#ifndef FILES_FES_HPP
+#define FILES_FES_HPP
 #include <iostream>
 #include <cryptopp/sha3.h>
 #include <cryptopp/hex.h>
@@ -10,8 +10,11 @@
 #include <fstream>
 #include <utility>
 
-
 typedef unsigned char byte;
+
+namespace FilES{
+
+}
 namespace crypto{
     void hash(byte *input, unsigned long sizeOfInput, byte *result);
     void hash(std::string str, byte* result);
@@ -118,4 +121,4 @@ namespace crypto{
     };
 }
 
-#endif //FILES_CRYPTO_HPP
+#endif // FILES_FES_HPP
